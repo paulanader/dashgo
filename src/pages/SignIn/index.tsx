@@ -3,13 +3,28 @@ import { Input } from "../../components/Form/Input";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
 type SignInFormData = {
   email: string;
   password: string;
 };
 
+const signInFormSchema = yup.object().shape({
+  email: yup.string().required("E-mail obrigatório").email("E-mail inválido"),
+  password: yup.string().required("Senha obrigatória"),
+});
+
 const SignIn: React.FC = () => {
-  const { register, handleSubmit, formState } = useForm<SignInFormData>();
+  const {
+    register,
+    handleSubmit,
+    formState,
+    formState: { errors },
+  } = useForm<SignInFormData>({
+    resolver: yupResolver(signInFormSchema),
+  });
 
   const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -29,8 +44,18 @@ const SignIn: React.FC = () => {
         onSubmit={handleSubmit(handleSignIn)}
       >
         <Stack spacing="4">
-          <Input type="email" label="E-mail" {...register("email")} />
-          <Input type="password" label="Senha" {...register("password")} />
+          <Input
+            type="email"
+            label="E-mail"
+            {...register("email")}
+            error={errors.email}
+          />
+          <Input
+            type="password"
+            label="Senha"
+            {...register("password")}
+            error={errors.password}
+          />
         </Stack>
         <Button
           type="submit"
